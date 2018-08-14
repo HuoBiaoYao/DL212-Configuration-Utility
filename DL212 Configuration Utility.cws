@@ -12,11 +12,11 @@ VXIplug&play Framework 64-bit Dir = "/C/Program Files/IVI Foundation/VISA/win64"
 Number of Projects = 1
 Active Project = 1
 Project 0001 = "DL212 Configuration Utility.prj"
-Drag Bar Left = 259
+Drag Bar Left = 209
 Window Top = 181
-Window Left = 298
-Window Bottom = 607
-Window Right = 1056
+Window Left = 26
+Window Bottom = 683
+Window Right = 816
 Maximized = True
 Maximized Children = True
 Max32 Number Of Errors = 20
@@ -28,11 +28,11 @@ Bring Up Err Win For Errors = False
 Save Changes Before Running = "Always"
 Save Changes Before Compiling = "Always"
 Hide Windows = False
-Break At First Statement = False
+Break At First Statement = True
 Sort Type = "File Name"
-Number of Opened Files = 2
+Number of Opened Files = 5
 Window Confinement Region Enabled = True
-MainColumnWidth = 242
+MainColumnWidth = 192
 FileDateColumnWidth = 70
 FileSizeColumnWidth = 70
 
@@ -46,52 +46,62 @@ Batch Build Release = False
 Batch Build Debug = False
 
 [File 0001]
-Path = "/c/Program Files/National Instruments/CVI2017/include/userint.h"
-File Type = "Include"
-Disk Date = 3573565200
-In Projects = ""
-Window Top = 62
-Window Left = 26
-Window Z-Order = 2
-Source Window State = "1,1382,1382,1382,8,22,22,0,3,80,0,0,0,0,0,13,1374,0,1382,8,263,688,1,0,"
-
-[File 0002]
 Path = "/d/GitHubRepository/DL212-Configuration-Utility/serial.c"
 File Type = "CSource"
-Disk Date = 3616133238
+Disk Date = 3616478848
 In Projects = "1,"
 Window Top = 32
 Window Left = 10
 Window Z-Order = 1
-Source Window State = "1,319,320,320,27,27,27,0,0,133,0,0,0,0,0,20,317,0,322,56,407,688,1,0,"
+Source Window State = "1,312,313,313,3,4,4,0,0,139,0,0,0,0,0,24,68,0,80,8,407,688,1,0,"
+
+[File 0002]
+Path = "/d/GitHubRepository/DL212-Configuration-Utility/user.h"
+File Type = "Include"
+Disk Date = 3616476622
+In Projects = "1,"
+Window Top = 92
+Window Left = 42
+Window Z-Order = 4
+Source Window State = "1,9,9,9,4,17,17,0,3,80,0,0,0,0,0,13,0,0,9,4,263,688,1,0,"
 
 [File 0003]
 Path = "/d/GitHubRepository/DL212-Configuration-Utility/serial.h"
 File Type = "Include"
-Disk Date = 3616110814
+Disk Date = 3616478830
 In Projects = "1,"
-Source Window State = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
+Window Top = 62
+Window Left = 26
+Window Z-Order = 3
+Source Window State = "1,77,77,77,0,116,116,0,0,80,0,0,0,0,0,13,61,0,78,21,263,688,1,0,"
 
 [File 0004]
-Path = "/d/GitHubRepository/DL212-Configuration-Utility/user.h"
-File Type = "Include"
-Disk Date = 3615783054
-In Projects = "1,"
-Source Window State = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
-
-[File 0005]
 Path = "/d/GitHubRepository/DL212-Configuration-Utility/serial.uir"
 File Type = "User Interface Resource"
-Disk Date = 3616113580
+Disk Date = 3616481028
 In Projects = "1,"
 Window Top = 62
 Window Left = 26
 Window Height = 263
 Window Width = 688
+Window Z-Order = 2
+
+[File 0005]
+Path = "/c/Program Files/National Instruments/CVI2017/include/userint.h"
+File Type = "Include"
+Disk Date = 3573565200
+In Projects = ""
+Window Top = 32
+Window Left = 10
+Window Z-Order = 5
+Source Window State = "1,1660,1660,1660,8,24,24,0,3,80,0,0,0,0,0,15,1659,0,1660,8,299,688,1,0,"
 
 [Tab Order]
-Tab 0001 = "/c/Program Files/National Instruments/CVI2017/include/userint.h"
-Tab 0002 = "/d/GitHubRepository/DL212-Configuration-Utility/serial.c"
+Tab 0001 = "/d/GitHubRepository/DL212-Configuration-Utility/serial.c"
+Tab 0002 = "/d/GitHubRepository/DL212-Configuration-Utility/serial.uir"
+Tab 0003 = "/c/Program Files/National Instruments/CVI2017/include/userint.h"
+Tab 0004 = "/d/GitHubRepository/DL212-Configuration-Utility/user.h"
+Tab 0005 = "/d/GitHubRepository/DL212-Configuration-Utility/serial.h"
 
 [Default Build Config 0001 Debug]
 Generate Browse Info = True
@@ -150,7 +160,7 @@ Enable Uninitialized Locals Runtime Warning = True
 Execution Trace = "Disabled"
 Profile = "Disabled"
 Debugging Level = "Standard"
-Break On Library Errors = True
+Break On Library Errors = False
 Break On First Chance Exceptions = False
 
 [Execution Target 0001]
@@ -182,7 +192,7 @@ Working Directory = ""
 Environment Options = ""
 
 [Watch 1]
-Watch Expression = "p"
+Watch Expression = "deviceName"
 
 [Distributions]
 Active Index = 1

@@ -1,4 +1,5 @@
 #include <windows.h>  
+#include <analysis.h>
 #include <formatio.h>
 #include "toolbox.h"
 #include <utility.h>
@@ -33,14 +34,12 @@ struct CONFIG{
 unsigned char COM=3,
 			  QuitCtrl=1,
 			  GetConfig_Flag=1;
-static const char * DaysOfWeek[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };  
-
+static const char * DaysOfWeek[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" }; 
 static int panelHandle,panelHandle_1,panelHandle_2;
-
+ 
 int main (int argc, char *argv[])
 {
-	int len,i;
-	ssize_t filesize;
+	int len;
 	char dirname[MAX_PATHNAME_LEN];
 	
 	if (InitCVIRTE (0, argv, 0) == 0)
@@ -68,13 +67,15 @@ int main (int argc, char *argv[])
 	SetCtrlVal (panelHandle, PANEL_TOGGLEBUTTON, 0);
     SetCtrlVal (panelHandle, PANEL_TOGGLEBUTTON_2, 0);
 	GetCtrlVal (panelHandle, PANEL_RING_12, &COM);  
+	COM_Enumerate();
+ 
 	
 	SetCtrlAttribute(panelHandle_1,PANEL_1_TEXTBOX,ATTR_MAX_ENTRY_CHARS ,440);
 	SetCtrlAttribute(panelHandle_2,PANEL_2_TEXTBOX,ATTR_MAX_ENTRY_CHARS ,440);
 	SetCtrlAttribute(panelHandle_1,PANEL_1_TEXTBOX,ATTR_WRAP_MODE,VAL_CHAR_WRAP);
 	SetCtrlAttribute(panelHandle_2,PANEL_2_TEXTBOX,ATTR_WRAP_MODE,VAL_CHAR_WRAP);
     SetCtrlAttribute(panelHandle,PANEL_TEXTBOX,ATTR_WRAP_MODE,VAL_CHAR_WRAP);  
-	SetSleepPolicy (VAL_SLEEP_MORE);
+	SetSleepPolicy (VAL_SLEEP_MORE);   
 	//RunUserInterface ();
 	while(QuitCtrl){
 	    ProcessSystemEvents();	
@@ -223,8 +224,8 @@ int CVICALLBACK D2_SDI12_Command_DeInitCB (int panel, int control, int event,
 int CVICALLBACK WriteConfigCB (int panel, int control, int event,
 							  void *callbackData, int eventData1, int eventData2)
 {   
-	int i=0,j=0,len,progress_dialog;
-	char buf[66],lrc=0;
+	int i=0,j=0,len;
+	char buf[66];
     char *p;
 	
 	switch (event)
@@ -248,19 +249,19 @@ int CVICALLBACK WriteConfigCB (int panel, int control, int event,
 			memset(RxBuf,0,10);
 			len = ComRdTerm (COM, RxBuf, 10,0x0A);  
 			if(len == -99){
-				MessagePopup ("","   未响应    ");    
+				MessagePopup ("","    未响应    ");    
 				return -1;
 			}
             //progress_dialog = CreateProgressDialog ("Completion Status", "Percent Complete", 1, VAL_NO_INNER_MARKERS, "确定"); 	 
 			//UpdateProgressDialog (progress_dialog, 10, 0);
 	        if(0 == strncmp("lrc ok",RxBuf,6)){
-		    	MessagePopup ("","    发送完成，擦写FLASH需要3秒左右的时间，请不要立刻断电或者再次发送配置    ");
+		    	MessagePopup ("","    发送完成，擦写FLASH需要2秒左右的时间，请不要立刻断电或者再次发送配置    ");
 			}
 			else if(0 == strncmp("lrc error",RxBuf,9)){
 				MessagePopup ("","    通讯校验错误    ");
 			}
 			else{
-				MessagePopup ("","    通讯超时    ");  	
+				MessagePopup ("","    未响应    ");  	
 			}    				  
 			break;
 	}
@@ -309,7 +310,7 @@ int CVICALLBACK ReadConfigCB (int panel, int control, int event,
 	return 0;	
 	
 }
-
+    
 int CVICALLBACK OpenComCB (int panel, int control, int event,
 						   void *callbackData, int eventData1, int eventData2)
 {
@@ -330,7 +331,7 @@ int CVICALLBACK OpenComCB (int panel, int control, int event,
 				ComPortState = OpenComConfig (COM, "", 115200, 0, 8, 1, 1024, 1024); 
 				if(ComPortState < 0){
 					SetCtrlVal (panelHandle, PANEL_TOGGLEBUTTON_2, 0);
-				    MessagePopup ("","         串口打开失败         ");         
+				    MessagePopup ("","     串口打开失败,请检查该串口是否已经被其他程序打开     ");         
 				}
 				else{
 					SetComTime(COM,2);
@@ -348,7 +349,18 @@ int CVICALLBACK SelectComCB (int panel, int control, int event,
 {
 	switch (event)
 	{
+		case EVENT_LEFT_CLICK:
+			COM_Enumerate();
+			SetCtrlVal (panelHandle, PANEL_RING_12, COM);
+			break;
 		case EVENT_COMMIT:
+			ComWrt (COM, "value display off", 18);  
+			Set_ATTR_DIMMED(1);								   
+			SetCtrlVal (panelHandle, PANEL_TOGGLEBUTTON, 0);
+			CloseCom (COM);
+			PANEL_TOGGLEBUTTON_2_State = 0;
+			SetCtrlVal (panelHandle, PANEL_TOGGLEBUTTON_2, PANEL_TOGGLEBUTTON_2_State);
+			ComPortState = -1;
 			GetCtrlVal (panelHandle, PANEL_RING_12, &COM);
 			break;
 	}
@@ -513,6 +525,62 @@ int ReadAndSet(void){
 	CloseFile(File_1_Handle);
 	
     return 0;
+}
+
+int COMScan(void)
+{
+    int portNumber;
+	char deviceName[6];
+	int res=0;     
+	
+	ClearListCtrl(panelHandle, PANEL_RING_12);
+	for(portNumber=99;portNumber>0;portNumber--){
+		sprintf(deviceName,"COM%d",portNumber);
+	    res = OpenCom(portNumber,deviceName);  
+		if(0 == res){
+			CloseCom(portNumber);
+			InsertListItem (panelHandle, PANEL_RING_12, 0,deviceName, portNumber);
+		}
+		else if(-7 == res){
+		    InsertListItem (panelHandle, PANEL_RING_12, 0,deviceName, portNumber);
+		}
+	}
+	return 0;
+}
+
+int COM_Enumerate(void)
+{     
+	unsigned char deviceName[100][10]={0},portNumber[100]={0};
+	unsigned int size1,size2,values,i;
+	int type;
+	char valueName[MAX_PATH];
+
+	ClearListCtrl(panelHandle, PANEL_RING_12);
+	RegQueryInfoOnKey (REGKEY_HKLM, "HARDWARE\\DEVICEMAP\\SERIALCOMM" ,NULL, &values, NULL, NULL, NULL);
+	for(i=0;i<values;i++) {		 
+		size1 = MAX_PATH; size2 = 512;
+		RegEnumerateValue (REGKEY_HKLM, "HARDWARE\\DEVICEMAP\\SERIALCOMM",  i, valueName, &size1, &deviceName[i][0], &size2,  &type);
+		if( type == _REG_SZ ) {
+			if(deviceName[i][4] != 0){
+				portNumber[i] = 10*(deviceName[i][3]-0x30)+deviceName[i][4]-0x30;  
+			}
+		    else{
+				portNumber[i] = deviceName[i][3]-0x30;   
+			} 
+		}   
+    }
+	qsort (portNumber,i ,1 , Compare);  
+	while(i--){
+		sprintf(&deviceName[i][0],"COM%d",portNumber[i]);
+		InsertListItem (panelHandle, PANEL_RING_12, 0,&deviceName[i][0], portNumber[i]);  
+	}
+	    
+	return 0;
+}
+
+int Compare(const void*a,const void*b)
+{
+	return *(unsigned char*)b-*(unsigned char*)a;//降序
 }
 
 unsigned char LRC( unsigned char *buf,unsigned short int len)
